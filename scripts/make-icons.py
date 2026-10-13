@@ -1,6 +1,6 @@
 """Generate the PWA / favicon icons (run once; the PNGs and .ico are committed). Needs Pillow.
 
-Design: ember square, a bold white "21.1" (half marathon km) in Outfit, and a sun-coloured finish-line bar under it.
+Design: ember square, a bold white "SW" over a smaller "Half" (both set to the same width) in Outfit, and a sun-coloured finish-line bar.
 iOS and Android round the corners themselves, so the artwork is full-bleed.
 """
 from PIL import Image, ImageDraw, ImageFont
@@ -24,28 +24,39 @@ def master(scale, lanes=True):
         for r in (1500, 1180, 860):
             d.ellipse((s - r, s - r, s + r, s + r), outline=DEEP, width=34)
 
-    # glyph
-    text = "21.1"
-    size = 400
-    font = ImageFont.truetype(FONT, size)
-    l, t, r, b = d.textbbox((0, 0), text, font=font)
-    # scale the font so the text spans ~74% of the artwork width
-    size = int(size * (s * 0.74 * scale) / (r - l))
-    font = ImageFont.truetype(FONT, size)
-    l, t, r, b = d.textbbox((0, 0), text, font=font)
-    gw, gh = r - l, b - t
-    bar_h = int(s * 0.07 * scale)
-    gap = int(s * 0.07 * scale)
-    block_h = gh + gap + bar_h
-    x = (s - gw) // 2 - l
-    y = (s - block_h) // 2 - t
-    d.text((x, y), text, font=font, fill=PAPER)
+    # two lines, both scaled to exactly the same width so the edges line up
+    width = int(s * 0.70 * scale)
+
+    def fit(text):
+        probe = ImageFont.truetype(FONT, 400)
+        l, t, r, bt = d.textbbox((0, 0), text, font=probe)
+        size = int(400 * width / (r - l))
+        font = ImageFont.truetype(FONT, size)
+        l, t, r, bt = d.textbbox((0, 0), text, font=font)
+        # nudge size until the ink width matches exactly
+        while r - l > width:
+            size -= 1
+            font = ImageFont.truetype(FONT, size)
+            l, t, r, bt = d.textbbox((0, 0), text, font=font)
+        return font, (l, t, r, bt)
+
+    f1, b1 = fit("SW")
+    f2, b2 = fit("Half")
+    h1, h2 = b1[3] - b1[1], b2[3] - b2[1]
+    line_gap = int(s * 0.045 * scale)
+    bar_h = int(s * 0.05 * scale)
+    bar_gap = int(s * 0.06 * scale)
+    block_h = h1 + line_gap + h2 + bar_gap + bar_h
+    top = (s - block_h) // 2
+    x0 = (s - width) // 2
+    d.text((x0 - b1[0], top - b1[1]), "SW", font=f1, fill=PAPER)
+    y2 = top + h1 + line_gap
+    d.text((x0 - b2[0], y2 - b2[1]), "Half", font=f2, fill=PAPER)
 
     # finish-line bar
-    bar_w = int(gw * 0.6)
-    bx0 = (s - bar_w) // 2
-    by0 = y + t + gh + gap
-    d.rounded_rectangle((bx0, by0, bx0 + bar_w, by0 + bar_h), radius=bar_h // 2, fill=SUN)
+    bar_w = int(width * 0.45)
+    by0 = y2 + h2 + bar_gap
+    d.rounded_rectangle(((s - bar_w) // 2, by0, (s + bar_w) // 2, by0 + bar_h), radius=bar_h // 2, fill=SUN)
     return img
 
 
