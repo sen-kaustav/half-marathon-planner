@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-13T21:25:11.652Z",
+  "updatedAt": "2026-10-14T21:09:30.058Z",
   "source": "strava",
   "activities": [
     {
@@ -11,6 +11,16 @@
       "distanceM": 5590,
       "movingTimeS": 2077,
       "elevationM": 16
+    },
+    {
+      "id": "20585949650",
+      "date": "2026-10-14",
+      "startLocal": "2026-10-14T18:49:11",
+      "type": "swim",
+      "name": "Evening Swim",
+      "distanceM": 1020,
+      "movingTimeS": 1387,
+      "elevationM": 0
     }
   ]
 }
