@@ -87,7 +87,8 @@ export default function Plan({ plan, results, stats, today, active, selIdx, setS
         </span>
       </div>
 
-      <div className="dayrow" role="tablist" aria-label="Days of the week">
+      <div className="dayrow" role="tablist" aria-label="Days of the week" style={{ '--sel': Math.max(0, selIdx - weekDays[0].index) }}>
+        <span className="dayrow-pill" aria-hidden="true" />
         {weekDays.map((d) => {
           const r = results[d.index];
           const on = d.index === selIdx;
