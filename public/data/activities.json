@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-27T19:35:39.815Z",
+  "updatedAt": "2026-11-01T14:03:44.302Z",
   "source": "strava",
   "activities": [
     {
@@ -91,6 +91,26 @@
       "distanceM": 6012,
       "movingTimeS": 2091,
       "elevationM": 16
+    },
+    {
+      "id": "20782673346",
+      "date": "2026-10-29",
+      "startLocal": "2026-10-29T18:56:34",
+      "type": "run",
+      "name": "Evening Run",
+      "distanceM": 5017,
+      "movingTimeS": 1815,
+      "elevationM": 16
+    },
+    {
+      "id": "20815795428",
+      "date": "2026-11-01",
+      "startLocal": "2026-11-01T10:32:59",
+      "type": "run",
+      "name": "Morning Run",
+      "distanceM": 11021,
+      "movingTimeS": 3661,
+      "elevationM": 34
     }
   ]
 }
