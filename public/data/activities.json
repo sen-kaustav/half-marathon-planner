@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-08T14:03:06.053Z",
+  "updatedAt": "2026-11-08T18:18:25.713Z",
   "source": "strava",
   "activities": [
     {
@@ -131,6 +131,26 @@
       "distanceM": 5011,
       "movingTimeS": 1721,
       "elevationM": 19
+    },
+    {
+      "id": "20910536974",
+      "date": "2026-11-07",
+      "startLocal": "2026-11-07T16:52:52",
+      "type": "swim",
+      "name": "Afternoon Swim",
+      "distanceM": 600,
+      "movingTimeS": 898,
+      "elevationM": 0
+    },
+    {
+      "id": "20910552812",
+      "date": "2026-11-08",
+      "startLocal": "2026-11-08T14:34:14",
+      "type": "run",
+      "name": "Afternoon Run",
+      "distanceM": 8013,
+      "movingTimeS": 2558,
+      "elevationM": 18
     }
   ]
 }
