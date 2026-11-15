@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-13T19:40:04.514Z",
+  "updatedAt": "2026-11-15T14:03:07.212Z",
   "source": "strava",
   "activities": [
     {
@@ -170,6 +170,16 @@
       "name": "Evening Run",
       "distanceM": 6012,
       "movingTimeS": 2016,
+      "elevationM": 24
+    },
+    {
+      "id": "20995368727",
+      "date": "2026-11-15",
+      "startLocal": "2026-11-15T09:42:38",
+      "type": "run",
+      "name": "Morning Run",
+      "distanceM": 12031,
+      "movingTimeS": 3842,
       "elevationM": 24
     }
   ]
