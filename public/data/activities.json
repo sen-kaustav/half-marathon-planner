@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-20T23:43:46.465Z",
+  "updatedAt": "2026-11-20T23:58:50.003Z",
   "source": "strava",
   "activities": [
     {
@@ -201,6 +201,16 @@
       "distanceM": 1020,
       "movingTimeS": 1359,
       "elevationM": 0
+    },
+    {
+      "id": "21064347378",
+      "date": "2026-11-20",
+      "startLocal": "2026-11-20T17:31:26",
+      "type": "run",
+      "name": "Afternoon Run",
+      "distanceM": 6026,
+      "movingTimeS": 2008,
+      "elevationM": 26
     }
   ]
 }
