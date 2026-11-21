@@ -72,7 +72,7 @@ export default function DayCard({ day, result, isToday }) {
 
       {day.type === 'rest' ? (
         <div className="card-body">
-          <div className="kind">Rest</div>
+          <div className="kind">{day.title}</div>
           <div className="card-desc">{day.desc}</div>
         </div>
       ) : (

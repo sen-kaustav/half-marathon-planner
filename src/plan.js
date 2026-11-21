@@ -12,7 +12,8 @@ export const PHASES = {
   taper: { name: 'Peak & taper', weeks: 4 },
 };
 
-// [phase, focus, tue, thu, sun] where each session is [km, kind, description]
+// [phase, focus, midweek, thu, sun] where each session is [km, kind, description].
+// "midweek" is Tuesday for weeks before NEW_LAYOUT_FROM and Wednesday (track night) from then on.
 const W = [
   ['base', 'Restart the habit', [5, 'Easy', '5 km easy + 4 × 20 s strides'], [5, 'Easy', '5 km easy, slower than feels natural'], [8, 'Long', '8 km easy']],
   ['base', 'Build frequency', [6, 'Easy', '6 km easy + 4 strides'], [5, 'Easy', '5 km easy'], [10, 'Long', '10 km easy, no walk breaks']],
@@ -47,6 +48,7 @@ const TARGETS = {
   Threshold: { pace: '4:55–5:05', feel: 'Comfortably hard' },
   Tempo: { pace: '4:55–5:05', feel: 'Comfortably hard' },
   Intervals: { pace: '4:25–4:35 on reps', feel: 'Hard, a few words' },
+  Track: { pace: 'Group pace, by effort', feel: 'Hard, a few words' },
   'Long + HMP': { pace: '5:20–5:30 on HMP', feel: 'Controlled' },
   'HMP reps': { pace: '5:20–5:30 on reps', feel: 'Controlled' },
   'HMP run': { pace: '5:20–5:30', feel: 'Controlled' },
@@ -58,9 +60,34 @@ const TARGETS = {
 };
 
 const DOW = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-// Day-of-week index (Mon = 0) -> session slot
-const RUN_SLOT = { 1: 2, 3: 3, 6: 4 }; // Tue, Thu, Sun -> W[...] index
-const SWIM_DOW = new Set([2, 5]); // Wed, Sat
+// Day-of-week index (Mon = 0) -> session slot in W
+const OLD_RUN_SLOT = { 1: 2, 3: 3, 6: 4 }; // Tue, Thu, Sun (weeks before NEW_LAYOUT_FROM)
+const NEW_RUN_SLOT = { 2: 2, 3: 3, 6: 4 }; // Wed (track night), Thu, Sun
+const OLD_SWIM_DOW = new Set([2, 5]); // Wed, Sat
+const NEW_SWIM_DOW = new Set([1, 5]); // Tue, Sat (Mon rest, Wed track, Fri tennis)
+
+// From the week of Mon 23 Nov 2026 (index 6): Wednesday track at Southwark Park (6:45pm group),
+// Friday tennis (not on Strava). Earlier weeks keep the original Tue/Thu/Sun + Wed/Sat swim layout.
+const NEW_LAYOUT_FROM = 6;
+
+// Weeks where the Wednesday run is the track session. Nov–Dec are the published sessions;
+// 2027 weeks assume the 6:45 group resumes (6 Jan) and keep the original workout as a fallback.
+const TRACK = {
+  6: [8, 'Track', 'Southwark Park, 6:45pm: 3 × (3, 2, 1). Jog 5–10 min before the warm-up. About 8 km all in.'],
+  7: [8, 'Track', 'Southwark Park, 6:45pm: 300 m Paarlauf. Jog 5–10 min before the warm-up. About 8 km all in.'],
+  9: [8, 'Track', 'Southwark Park, 6:45pm: Lucky Dip session. Last track night before the Christmas break. About 8 km all in.'],
+  13: [9, 'Track', 'Southwark Park, 6:45pm (session TBC). No track tonight? 2 km easy, 6 × 1 km @ interval (90 s jog), easy to 9 km.'],
+  16: [10, 'Track', 'Southwark Park, 6:45pm (session TBC). No track tonight? 2 km easy, 4 × 1.6 km at 4:40/km (2 min jog), easy to 10 km.'],
+  19: [10, 'Track', 'Southwark Park, 6:45pm (session TBC). No track tonight? 2 km easy, 6 × 1 km @ interval (2 min jog), easy to 10 km.'],
+};
+// Key threshold / tempo / HMP weeks: do the planned session on Wednesday instead of track.
+const INSTEAD_OF_TRACK = new Set([8, 12, 15, 17, 18, 20]);
+
+function midweekSession(wi, w) {
+  if (wi >= NEW_LAYOUT_FROM && TRACK[wi]) return TRACK[wi];
+  const [km, kind, desc] = w[2];
+  return wi >= NEW_LAYOUT_FROM && INSTEAD_OF_TRACK.has(wi) ? [km, kind, `${desc} Do this instead of track.`] : [km, kind, desc];
+}
 
 export function runTitle(kind) {
   if (kind === 'Easy') return 'Easy run';
@@ -76,6 +103,10 @@ export function buildPlan() {
     const [phase, focus] = w;
     const weekStart = addDays(start, wi * 7);
     let plannedKm = 0;
+    const newLayout = wi >= NEW_LAYOUT_FROM;
+    const runSlot = newLayout ? NEW_RUN_SLOT : OLD_RUN_SLOT;
+    const swimDow = newLayout ? NEW_SWIM_DOW : OLD_SWIM_DOW;
+    const isRaceWeek = wi === W.length - 1;
     for (let dow = 0; dow < 7; dow++) {
       const date = addDays(weekStart, dow);
       const base = {
@@ -86,15 +117,19 @@ export function buildPlan() {
         dow,
         dowName: DOW[dow],
       };
-      if (RUN_SLOT[dow]) {
-        const [kmPlanned, kind, desc] = w[RUN_SLOT[dow]];
+      if (runSlot[dow]) {
+        const [kmPlanned, kind, desc] = runSlot[dow] === 2 ? midweekSession(wi, w) : w[runSlot[dow]];
         plannedKm += kmPlanned;
         days.push({ ...base, type: 'run', km: kmPlanned, kind, title: runTitle(kind), desc, target: TARGETS[kind] || EASY, isRace: kind === 'Race day' });
-      } else if (SWIM_DOW.has(dow) && !(wi === W.length - 1 && dow === 5)) {
+      } else if (swimDow.has(dow) && !(isRaceWeek && dow === 5)) {
         days.push({ ...base, type: 'swim', km: 1, kind: 'Swim', title: 'Swim', desc: 'Easy ~1 km, recovery' });
       } else {
-        const raceEve = wi === W.length - 1 && dow === 5;
-        days.push({ ...base, type: 'rest', km: 0, kind: 'Rest', title: 'Rest', desc: raceEve ? 'Rest the day before the race.' : 'Rest day. Let the legs absorb the work.' });
+        const raceEve = isRaceWeek && dow === 5;
+        if (newLayout && dow === 4 && !isRaceWeek) {
+          days.push({ ...base, type: 'rest', km: 0, kind: 'Tennis', title: 'Tennis', desc: 'Evening tennis. Not tracked on Strava; counts as easy cardio. Keep it social before the long run.' });
+        } else {
+          days.push({ ...base, type: 'rest', km: 0, kind: 'Rest', title: 'Rest', desc: raceEve ? 'Rest the day before the race.' : isRaceWeek && dow === 4 ? 'Rest. No tennis in race week.' : 'Rest day. Let the legs absorb the work.' });
+        }
       }
     }
     weeks.push({

@@ -101,7 +101,7 @@ export default function Home({ plan, results, stats, today, data, onOpenDay }) {
                   {r.status === 'skipped' && <CrossIcon width={14} height={14} />}
                   {r.status === 'rest' && '–'}
                 </span>
-                <span className="wsub">{d.type === 'run' ? `${d.km} km` : d.type === 'swim' ? 'Swim' : 'Rest'}</span>
+                <span className="wsub">{d.type === 'run' ? `${d.km} km` : d.type === 'swim' ? 'Swim' : d.title}</span>
               </button>
             );
           })}
